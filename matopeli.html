@@ -2,9 +2,32 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <link rel="stylesheet" type="text/css" href="uistyle.css">
+        <link rel="stylesheet" type="text/css" href="/public/uistyle.css">
         <title>Matopeli</title>
     </head>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+<script type="text/javascript">
+    var socket = io();
+    var receivedData;
+    socket.on("connect", function(){
+        console.log("browser side message: user connected!")
+    });
+
+    var sentTime = 0;
+
+
+    setInterval(function (){
+        sentTime = Date.now();
+        socket.emit("ping");
+    },500);
+
+    socket.on("pong",function(){
+        var latency = (Date.now() - sentTime);
+        console.log("Server sent pong!");
+        console.log(latency.toString());
+    });
+
+</script>
     <body>
         <div id="header">
             <h3 id="htitle">Login</h3>
@@ -29,5 +52,8 @@
                 Send: <input id="chatbox" type="text" name="chatbox">
             </form>
         </div>
+
+        <p id="testi">tämän pitäisi muuttua </p>
+        <script src="/public/worm.js"></script>
     </body>
 </html>
