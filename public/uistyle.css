@@ -4,6 +4,17 @@ input:focus {
     color: black;
 }
 
+table,td,tr{
+	border: 1px solid black;
+	padding: 0px;
+	margin:auto;
+}
+
+td{
+	width: 5px;
+	height: 5px;
+}
+
 #header {
 	border: 1px solid lightgrey;
 	padding-left: 10px;

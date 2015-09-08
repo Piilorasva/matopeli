@@ -14,9 +14,9 @@ app.get('/', function (req,res){
 
 io.on("connection", function (socket){
 
-	socket.on("ping", function(){
+	/*socket.on("ping", function(){
 		socket.emit("pong");
-	});
+	}); */
 
 	console.log("User connected!");
 });
