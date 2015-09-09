@@ -1,7 +1,10 @@
 var snake = []
-var direction = 1; //oikealle
-var START_LENGTH = 4;
-var fps = 5;
+var direction = 1; //ylös
+var START_LENGTH = 10;
+var fps = 10;
+
+var gameboardWidth = 40;
+var gameboardHeight = 40;
 
 
 function initGameBoard(height,width){
@@ -28,31 +31,57 @@ function initGameBoard(height,width){
 	}
 	gameboard += '</table>';
 	$("#gameboard_div").html(gameboard);
-	drawSnake(snake);
+	drawSnake();
 }
-initGameBoard(33,33);
 
-function drawSnake(snakeLoc){
-	snakeCoordinates = snakeLoc;
+initGameBoard(gameboardHeight,gameboardWidth);
+
+
+
+function drawSnake(){
 	setTimeout(function(){
-		console.log("ruudun päivitys");
+		console.log("Snakes length:" + snake.length);
 		requestAnimationFrame(drawSnake);
-		//console.log("Snake head at row: " +snakeCoordinates[0][0].toString()+" data:" + snakeCoordinates[0][1].toString() );
-		var length = snakeCoordinates.length;
-		for(i=0; i< length;i++){
-			var row = snakeCoordinates[i][0];
-			var data = snakeCoordinates[i][1];
+
+		//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä
+		for(i = 0; i< gameboardHeight;i++){
+			for(j=0;j<gameboardWidth;j++){
+				var rowToClear = i;
+				var dataToClear = j;
+				$("#r"+rowToClear+"d"+dataToClear).css("background", "white");
+			}
+		}
+
+		var length = snake.length;
+		for(i=0; i < length;i++){
+			var row = snake[i][0];
+			var data = snake[i][1];
 			$("#r"+row+"d"+data).css("background", "green");	
 		}
 
-		if(direction == 1){//Mennään oikealle eli lisätään datan arvoa
-			for(i=0; i< length;i++){
+		if(direction == 1){//Mennään oikealle eli lisätään datan arvoa	
 				console.log("Lisätään datan arvoa yhdellä");
-			 	snakeCoordinates[i][1] += 1;
-		}
+			 	var headrow = snake[0][0] - 1;
+			 	var headdata = snake[0][1];
+			 	var newHead = [headrow,headdata];
+			 	snake.splice(0,0,newHead);
+			 	snake.pop();
+			 	console.log("Snakes length:" + snake.length);
 		}
 	},1000/fps);	
 }
 
 
-
+/*
+ requestAnimationFrame(mainLoop) //
+        var lastCalledTime;
+        var deltaTime;
+ 
+        function mainLoop(){
+            if (!lastCalledTime){
+                lastCalledTime = Date.now();
+            }
+            deltaTime = (new Date().getTime() - lastCalledTime) / 1000;
+            lastCalledTime = Date.now();
+            requestAnimationFrame(mainLoop);
+        } */
