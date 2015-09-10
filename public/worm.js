@@ -4,6 +4,7 @@ var START_LENGTH = 8;
 var fps = 60;
 var appleEaten = false;
 var snakeAlive = true;
+var score = 0;
 
 var gameboardWidth = 65;
 var gameboardHeight = 65;
@@ -84,6 +85,7 @@ function drawApple(){
 }
 
 function initSnake(){
+	score = 0;
 	for ( i = 0; i < START_LENGTH; i++){
    		var row = Math.floor((gameboardWidth/2)); //Asetetaan riviksi keskimmäinen rivi
     	var data = Math.floor((gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
@@ -94,7 +96,8 @@ function initSnake(){
 }
 //FUNKTIO PELILAUDAN ALUSTUSTA VARTEN//
 function initGameBoard(height,width){
-	var gameboard = '<table id="gameboard">'
+	var gameboard = '<p id = score style="text-align:center">Score: </p>'
+    gameboard += '<table id="gameboard">'
 
 	for(i = 0; i<height; i++){
 		gameboard += '<tr>';
@@ -120,7 +123,7 @@ function drawSnake(){
 	if(snakeAlive){
 	setTimeout(function(){
 		requestAnimationFrame(drawSnake);
-
+		$("#score").html("Score: " + score);
 		//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä, paitsi omenan kohdalta. Piirtää myös mustat reunat
 		for(i = 0; i< gameboardHeight;i++){
 			for(j=0;j<gameboardWidth;j++){
@@ -207,6 +210,7 @@ function drawSnake(){
 		if(snakeAlive){
 			if(snake[0][0] == applePosRow && snake[0][1] == applePosData){
 				appleEaten = true;
+				score += 1;
 				drawApple();
 			}
 		}
