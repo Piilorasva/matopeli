@@ -1,5 +1,5 @@
 var snake = []
-var direction = 3; //ylös
+var direction = 2; //oikealle
 var START_LENGTH = 8;
 var fps = 60;
 var appleEaten = false;
@@ -43,8 +43,16 @@ function checkKey(e) {
         direction = 2
     	}
     }
+    if (e.keyCode == '82') {
+        if(!snakeAlive){
+        	snakeAlive = true;
+        	initSnake();
+        	drawApple();
+        }
+        
+    }
 }
-//FUNKTIO MADON SIJOITTAMISEEN KENTÄLLE//
+//FUNKTIO OMENAN SIJOITTAMISEEN KENTÄLLE//
 function drawApple(){
 	var rowNotOk = true;
 	while(rowNotOk){
@@ -75,18 +83,17 @@ function drawApple(){
 
 }
 
-//FUNKTIO PELILAUDAN ALUSTUSTA VARTEN//
-function initGameBoard(height,width){
-
-	//Tällä loopilla tehdään madosta startlengthin mittainen
+function initSnake(){
 	for ( i = 0; i < START_LENGTH; i++){
-   		var row = Math.floor((width/2)); //Asetetaan riviksi keskimmäinen rivi
-    	var data = Math.floor((height/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
+   		var row = Math.floor((gameboardWidth/2)); //Asetetaan riviksi keskimmäinen rivi
+    	var data = Math.floor((gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
    	    var locCoord = [row,data] //Tehdään taulukko joka sisältää kaksi arvoa, rivin ja sarakkeen
         snake.push(locCoord); //lisätään äsken luotu taulu käärmeen kohdaksi
     }    
-
-
+    drawSnake();
+}
+//FUNKTIO PELILAUDAN ALUSTUSTA VARTEN//
+function initGameBoard(height,width){
 	var gameboard = '<table id="gameboard">'
 
 	for(i = 0; i<height; i++){
@@ -99,8 +106,9 @@ function initGameBoard(height,width){
 		gameboard += '</tr>';
 	}
 	gameboard += '</table>';
+	gameboard += '<p style="text-align: center"> Ohjaa matoa nuolinäppäimillä. Kuoleman jälkeen paina R syntyäksesi uudelleen </P>'
 	$("#gameboard_div").html(gameboard);
-	drawSnake();
+	initSnake();
 	drawApple();
 }
 
@@ -189,14 +197,18 @@ function drawSnake(){
 			}
 		}
 		//Törmäyksen tarkistaminen reunaan
-		if(snake[0][0] == 0 || snake[0][0] == gameboardHeight -1 || snake[0][1] == 0 || snake[0][1] == gameboardWidth -1){
-			snakeAlive = false;
-			gameOverScreen();
+		if(snakeAlive){
+			if(snake[0][0] == 0 || snake[0][0] == gameboardHeight - 1|| snake[0][1] == 0 || snake[0][1] == gameboardWidth - 1){
+				snakeAlive = false;
+				gameOverScreen();
+			}
 		}
 		//Omenan syönnin tarkistus
-		if(snake[0][0] == applePosRow && snake[0][1] == applePosData){
-			appleEaten = true;
-			drawApple();
+		if(snakeAlive){
+			if(snake[0][0] == applePosRow && snake[0][1] == applePosData){
+				appleEaten = true;
+				drawApple();
+			}
 		}
 
 
@@ -204,12 +216,17 @@ function drawSnake(){
 	}
 } 
 
+function respawn(){
+
+}
+
 function gameOverScreen(){
+	snake = [];
 	for(i = 0; i< gameboardHeight;i++){
 		for(j=0;j<gameboardWidth;j++){
 			var row = i;
 			var data = j;
-				
+			
 			$("#r"+row+"d"+data).css("background", "black");
 				
 		}
