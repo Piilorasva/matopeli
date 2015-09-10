@@ -1,12 +1,81 @@
 var snake = []
-var direction = 1; //ylös
-var START_LENGTH = 10;
-var fps = 10;
+var direction = 3; //ylös
+var START_LENGTH = 8;
+var fps = 60;
+var appleEaten = false;
+var snakeAlive = true;
 
-var gameboardWidth = 40;
-var gameboardHeight = 40;
+var gameboardWidth = 65;
+var gameboardHeight = 65;
+
+var applePosRow; 
+var applePosData;
 
 
+//PAINETUN NÄPPÄIMEN TARKISTUS JA DIRECTION-MUUTTUJAN MUOKKAUS//
+document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        // up arrow
+        if(direction != 3){
+        direction = 1;
+    	}
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+        if(direction != 1){
+        direction = 3
+    	}
+    }
+    else if (e.keyCode == '37') {
+       // left arrow
+        if(direction != 2){
+        direction = 4
+   		}
+    }
+    else if (e.keyCode == '39') {
+        // right arrow
+        if(direction != 4){
+        direction = 2
+    	}
+    }
+}
+//FUNKTIO MADON SIJOITTAMISEEN KENTÄLLE//
+function drawApple(){
+	var rowNotOk = true;
+	while(rowNotOk){
+		applePosRow = Math.floor((Math.random() * gameboardHeight));
+		applePosData = Math.floor((Math.random() * gameboardHeight));
+		var length = snake.length;
+		for(i=0; i < length;i++){
+			var row = snake[i][0];
+			var data = snake[i][1];
+			if(applePosRow == row && applePosData == data){
+				console.log("Apple inside snake");
+				rowNotOk = true;
+				break;
+			}
+			if(applePosRow == 0 || applePosRow == gameboardHeight -1 || applePosData == 0 || applePosData == gameboardWidth -1){
+				console.log("Apple inside border");
+				rowNotOk = true;
+				break;
+			} else{
+				rowNotOk = false;
+			}
+		}
+	}
+
+
+	$("#r"+applePosRow+"d"+applePosData).css("background", "red");
+
+
+}
+
+//FUNKTIO PELILAUDAN ALUSTUSTA VARTEN//
 function initGameBoard(height,width){
 
 	//Tällä loopilla tehdään madosta startlengthin mittainen
@@ -32,23 +101,31 @@ function initGameBoard(height,width){
 	gameboard += '</table>';
 	$("#gameboard_div").html(gameboard);
 	drawSnake();
+	drawApple();
 }
 
 initGameBoard(gameboardHeight,gameboardWidth);
 
 
-
+//FUNKTIO MADON PIIRTÄMISTÄ VARTEN//
 function drawSnake(){
+	if(snakeAlive){
 	setTimeout(function(){
-		console.log("Snakes length:" + snake.length);
 		requestAnimationFrame(drawSnake);
 
-		//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä
+		//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä, paitsi omenan kohdalta. Piirtää myös mustat reunat
 		for(i = 0; i< gameboardHeight;i++){
 			for(j=0;j<gameboardWidth;j++){
 				var rowToClear = i;
 				var dataToClear = j;
-				$("#r"+rowToClear+"d"+dataToClear).css("background", "white");
+				if(rowToClear == applePosRow && dataToClear == applePosData){
+					$("#r"+rowToClear+"d"+dataToClear).css("background", "red");
+				} else if(rowToClear == 0 || rowToClear == gameboardHeight -1 || dataToClear == 0 || dataToClear == gameboardWidth -1){
+					$("#r"+rowToClear+"d"+dataToClear).css("background", "black");
+				}
+				else{
+				$("#r"+rowToClear+"d"+dataToClear).css("background", "lightblue");
+				}
 			}
 		}
 
@@ -59,29 +136,120 @@ function drawSnake(){
 			$("#r"+row+"d"+data).css("background", "green");	
 		}
 
-		if(direction == 1){//Mennään oikealle eli lisätään datan arvoa	
-				console.log("Lisätään datan arvoa yhdellä");
+		if(direction == 1){//Mennään ylös eli vähennetään rowin	
 			 	var headrow = snake[0][0] - 1;
 			 	var headdata = snake[0][1];
 			 	var newHead = [headrow,headdata];
 			 	snake.splice(0,0,newHead);
+			 	if(!appleEaten){
 			 	snake.pop();
-			 	console.log("Snakes length:" + snake.length);
+			 	}
+			 	appleEaten = false;
 		}
+		else if(direction == 2){//Mennään oikealle eli lisätään datan arvoa	
+			 	var headrow = snake[0][0];
+			 	var headdata = snake[0][1] + 1;
+			 	var newHead = [headrow,headdata];
+			 	snake.splice(0,0,newHead);
+			 	if(!appleEaten){
+			 	snake.pop();
+			 	}
+			 	appleEaten = false;
+		}
+		else if(direction == 3){//Mennään alas eli lisätään rowin arvoa	
+			 	var headrow = snake[0][0] + 1;
+			 	var headdata = snake[0][1];
+			 	var newHead = [headrow,headdata];
+			 	snake.splice(0,0,newHead);
+			 	if(!appleEaten){
+			 	snake.pop();
+			 	}
+			 	appleEaten = false;
+		}
+		else if(direction == 4){//Mennään vasemmalle eli vähennetään datan arvoa	
+			 	var headrow = snake[0][0];
+			 	var headdata = snake[0][1] - 1;
+			 	var newHead = [headrow,headdata];
+			 	snake.splice(0,0,newHead);
+			 	if(!appleEaten){
+			 	snake.pop();
+			 	}
+			 	appleEaten = false;
+		}
+
+		//törmäyksen tarkistaminen omaan häntään
+		for(i=1; i < length;i++){
+			var headrow = snake[0][0];
+			var headdata = snake[0][1];
+			var row = snake[i][0];
+			var data = snake[i][1];
+			if(row == headrow && data == headdata){
+				snakeAlive = false;
+				gameOverScreen();
+			}
+		}
+		//Törmäyksen tarkistaminen reunaan
+		if(snake[0][0] == 0 || snake[0][0] == gameboardHeight -1 || snake[0][1] == 0 || snake[0][1] == gameboardWidth -1){
+			snakeAlive = false;
+			gameOverScreen();
+		}
+		//Omenan syönnin tarkistus
+		if(snake[0][0] == applePosRow && snake[0][1] == applePosData){
+			appleEaten = true;
+			drawApple();
+		}
+
+
 	},1000/fps);	
+	}
+} 
+
+function gameOverScreen(){
+	for(i = 0; i< gameboardHeight;i++){
+		for(j=0;j<gameboardWidth;j++){
+			var row = i;
+			var data = j;
+				
+			$("#r"+row+"d"+data).css("background", "black");
+				
+		}
+	}
 }
-
-
 /*
- requestAnimationFrame(mainLoop) //
         var lastCalledTime;
         var deltaTime;
  
-        function mainLoop(){
+        function drawSnake(){
             if (!lastCalledTime){
                 lastCalledTime = Date.now();
             }
             deltaTime = (new Date().getTime() - lastCalledTime) / 1000;
             lastCalledTime = Date.now();
-            requestAnimationFrame(mainLoop);
-        } */
+            requestAnimationFrame(drawSnake);
+            //tehdään loop joka puhdistaa pöydän aina piirtämisen välissä
+			for(i = 0; i< gameboardHeight;i++){
+				for(j=0;j<gameboardWidth;j++){
+					var rowToClear = i;
+					var dataToClear = j;
+					$("#r"+rowToClear+"d"+dataToClear).css("background", "white");
+				}
+			}
+
+			var length = snake.length;
+			for(i=0; i < length;i++){
+				var row = snake[i][0];
+				var data = snake[i][1];
+				$("#r"+row+"d"+data).css("background", "green");	
+			}
+
+			if(direction == 1){//Mennään oikealle eli lisätään datan arvoa	
+					console.log("Lisätään datan arvoa yhdellä");
+			 		var headrow = snake[0][0] - 1;
+			 		var headdata = snake[0][1];
+			 		var newHead = [headrow,headdata];
+			 		snake.splice(0,0,newHead);
+			 		snake.pop();
+			 		console.log("Snakes length:" + snake.length);
+			}
+        }
+*/
