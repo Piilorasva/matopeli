@@ -14,7 +14,7 @@
     socket.on("connect", function(){
         socket.on("chat message", function(msg) {
             console.log(msg);
-            $('#messages').prepend($('<li>').text(msg));
+            $('#messages').prepend($('<li>').text(socket + "->"+ msg));
         });
     });
 
@@ -60,9 +60,11 @@
         <div id="footer">
             <h4 id="ftitle">Messages</h4>
             <form id="chat">
+                <div id="chat-area">
                 <ul id="messages">
 
                 </ul>
+                </div>
                 Send: <input id="chatbox" type="text" name="chatbox">
                 <button type="button" onclick="sendMessage()">Send</button>
             </form>

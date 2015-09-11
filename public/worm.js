@@ -3,7 +3,7 @@ var direction = 2; //oikealle
 var START_LENGTH = 8;
 var fps = 60;
 var appleEaten = false;
-var snakeAlive = true;
+var snakeAlive = false;
 var score = 0;
 
 var gameboardWidth = 65;
