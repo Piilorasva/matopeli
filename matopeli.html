@@ -41,11 +41,18 @@
     <body>
         <div id="header">
             <h3 id="htitle">Login</h3>
-                <form>
-                    Player: <input class="tbox" type="text" name="player">
-                    <input class="button" type="submit" value="Login">
-                </form>
+                Player: <input class="tbox" id="nick" type="text" name="player">
+                <button onclick="login()">Login</button>
         </div>
+        <script>
+        function login(){
+            // Otetaan nick talteen nick-kentästä
+            var nickname = $("#nick").val();
+            // Lähetetään serverille getissä käyttäjän ehdottama nickname
+            $.get("/login?user="+nickname, function(data){
+            });
+        }
+        </script>
         <div id="leftmenu">
             <h4 id="ltitle">Online players</h4>
             <p>Player 1</p>

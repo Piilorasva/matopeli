@@ -1,0 +1,6 @@
+function login(){
+    var nickname = $("#nick").val();
+    console.log(nickname)
+    $.get("/login?user="+nickname, function(data){
+    });
+}
