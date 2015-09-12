@@ -1,18 +1,25 @@
-DROP DATABASE IF EXISTS matopeli;
-CREATE DATABASE matopeli;
-USE matopeli;
+DROP DATABASE IF EXISTS worms;
+CREATE DATABASE worms;
+USE worms;
 
-CREATE TABLE kayttaja (
+CREATE TABLE user (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nickname VARCHAR(30) NOT NULL,
-    salasana VARCHAR(30),
-    maxpisteet INT,
-    pelatutpelit INT
+    password VARCHAR(30),
+    gamesplayed INT
 )ENGINE=InnoDB;
 
 CREATE TABLE chat (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    viesti VARCHAR(100),
-    lahettaja VARCHAR(30),
-    aika TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    message VARCHAR(100),
+    sender VARCHAR(30),
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)ENGINE=InnoDB;
+
+CREATE TABLE results (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    maxpoints INT,
+    user INT,
+	time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user) REFERENCES user(id)
 )ENGINE=InnoDB;
