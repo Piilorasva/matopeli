@@ -12,9 +12,14 @@
     var socket = io();
     var receivedData;
     socket.on("connect", function(){
+        socket.name = "Anon";
         socket.on("chat message", function(msg) {
             console.log(msg);
-            $('#messages').prepend($('<li>').text(socket + "->"+ msg));
+            $('#messages').prepend($('<li>').text(socket.name + "--->"+ msg));
+        });
+
+        socket.on("change_name",function(name){
+            socket.name = name;
         });
     });
 
