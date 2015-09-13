@@ -5,6 +5,8 @@ var io = require("socket.io")(http);
 var fs = require("fs");
 var mysql      = require('mysql');
 
+var clientNames = [];
+
 
 var connection = mysql.createConnection({
   host     : 'localhost',
@@ -46,20 +48,40 @@ app.get("/login", function(req, res){
 	    	console.log("Lisättiin uusi käyttäjä tietokantaan");
 		});
 	});
-	io.emit("change_name", nick);
+	//changeName(nick);
 });
 
 io.on("connection", function (socket){
-	socket.name = "Anon";
 	
-	socket.on("chat message", function(msg){
-		io.emit("chat message", msg);
+	
+	socket.on("chat message", function(msg,sender){
+		io.emit("chat message", msg,sender);
 	});
 
+	socket.on("disconnect",function(){ // kun käyttäjä lähtee niin poistetaan käyttäjän nimi listassa mikäli se on jokin muu kuin undefined
+        console.log("Deleted user " + socket.name + " from list");
+        if(socket.name != "undefined"){
+       	    var index = clientNames.indexOf(socket.name);
+			clientNames.splice(index, 1);
+		}
+        });
+
+	socket.on("addMeToList",function(nick){ //tässä lisätään käyttäjä kirjautumisnapin painalluksen jälkeen serverillä olevaan listaan
+		socket.name = nick;
+		console.log("Added user " + nick + " to list");
+		clientNames.push(nick);
+	});
+	
+	
 	
 
 	console.log("User connected!");
 });
+
+setInterval(function(){ //tällä intervallilla lähetetään käyttäjille tieto kaikista nimimerkin antaneista henkilöistä
+        console.log("inside setInterval");
+        io.emit("listUsers", clientNames);
+    },2000);
 
 
 
