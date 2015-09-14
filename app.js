@@ -11,7 +11,7 @@ var clientNames = [];
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'test1234',
+  password : 'testi1234',
   database : "worms"
 });
 
@@ -72,8 +72,12 @@ io.on("connection", function (socket){
 		clientNames.push(nick);
 	});
 	
-	
-	
+	//hakee ranking listan tietokannasta.
+	socket.on("getRanking", function(){
+		connection.query('SELECT user.nickname, results.maxpoints  FROM user,results WHERE user.id=results.user ORDER BY results.maxpoints ASC', function(err, rows, fields) {
+	   	socket.emit("ShowRanking", JSON.stringify(rows));
+		});
+	});	
 
 	console.log("User connected!");
 });
