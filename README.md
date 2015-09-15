@@ -1,5 +1,6 @@
 # matopeli
 Matopeli-projekti verkkosovelluskehityskurssia varten
 
-# devaus
+
+#Devaus
 npm install
