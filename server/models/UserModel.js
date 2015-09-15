@@ -6,8 +6,8 @@ var db = require("../lib/dbconnect.js");
 var User = (function () {
 
 	function login(nick, kayttaja) {
-
 		var queryString = 'SELECT * FROM user';
+
 		db.query(queryString, function (err, rows, fields) {
 			if (err) {
 				throw err;
@@ -29,6 +29,15 @@ var User = (function () {
 		});
 	}
 
+	function getRanking(callback) {
+		var q = 'SELECT user.nickname, results.maxpoints FROM user,results WHERE user.id=results.user ORDER BY results.maxpoints ASC';
+
+		db.query(q, function(err, rows, fields) {
+			callback(rows);
+			console.log(rows);
+		});
+	}
+
 	function derp() {
 		console.log("model derp");
 	};
@@ -37,7 +46,8 @@ var User = (function () {
 	/* public functions */
 	return {
 		login: login,
-		derp: derp
+		derp: derp,
+		getRanking: getRanking
 	};
 
 })();

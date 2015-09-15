@@ -7,7 +7,7 @@ var connection = mysql.createConnection({
     user: cfg.user,
     password: cfg.password,
     database: cfg.database,
-    port: cfg.port
+
 });
 
 connection.connect(function (err) {
@@ -15,7 +15,7 @@ connection.connect(function (err) {
 	console.error("error connecting db: " + err.stack);
 	return;
     }
-    
+
 });
 
 module.exports = connection;
