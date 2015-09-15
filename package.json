@@ -1,12 +1,13 @@
 {
   "name": "matopeli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "matopeli",
   "main": "app.js",
   "dependencies": {
     "express": "^4.13.3",
     "mysql": "^2.9.0",
-    "socket.io": "^1.3.6"
+    "socket.io": "^1.3.6",
+    "pubsub-js": "*"
   },
   "devDependencies": {},
   "scripts": {

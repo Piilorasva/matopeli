@@ -34,7 +34,7 @@ var User = (function () {
 
 		db.query(q, function(err, rows, fields) {
 			callback(rows);
-			console.log(rows);
+
 		});
 	}
 
