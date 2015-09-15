@@ -1,6 +1,7 @@
 var userModel = require("../models/UserModel.js");
 
-///************* USER CONTROLLER ***************/
+/************* USER CONTROLLER ***************/
+
 
 var userController = (function () {
     function login(req, res) {
