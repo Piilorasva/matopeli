@@ -12,7 +12,7 @@ io.listen(http);
 app.use("/public", express.static("public"));
 
 app.get('/', function (req, res) {
-    res.sendfile("matopeli.html");
+    res.sendfile("client/matopeli.html");
 });
 
 app.use("/", userRoutes);

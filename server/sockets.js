@@ -1,17 +1,6 @@
 /* socket io stuff */
 var socketio = require("socket.io");
 
-//module.exports.listen = function (app) {
-//    var io = socketio.listen(app);
-//
-//    io.on("connection", function (socket) {
-//	socket.on("chat message", function (msg, sender) {
-//	    io.emit("chat message", msg, sender);
-//	});
-//
-//    });
-//};
-
 module.exports = (function () {
     var io = false;
     var clientNames = [];
@@ -45,7 +34,7 @@ module.exports = (function () {
 	});
     }
 
-
+    /* public functions */
     return {
 	listen: listen
     };
