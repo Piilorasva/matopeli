@@ -41,8 +41,9 @@ module.exports = (function () {
 		    socket.on("getRanking", function() {
 		    	userModel.getRanking(function(result) {
 		    		console.log(result);
+		    		socket.emit("ShowRanking", JSON.stringify(result));
 		    	});
-		    	socket.emit("ShowRanking", JSON.stringify("asd"));
+		    	//socket.emit("ShowRanking", JSON.stringify("asd"));
 		    });
 		});
 	}
