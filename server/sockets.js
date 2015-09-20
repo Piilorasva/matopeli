@@ -2,8 +2,22 @@
 var socketio 	= require("socket.io");
 var userModel	= require("./models/UserModel.js");
 var PubSub 		= require("pubsub-js");
+var wormController = require("./controllers/wormController.js");
 
+/*var drawInfo = {
+	snake : [],
+	direction : 2, //oikealle
+	START_LENGTH : 8,
+    appleEaten : false,
+   	snakeAlive : false,
+	score : 0,
 
+	gameboardWidth : 65,
+	gameboardHeight : 65,
+
+	applePosRow :0, 
+	applePosData:0
+} */
 
 
 module.exports = (function () {
@@ -18,6 +32,21 @@ module.exports = (function () {
 
 	function socketListeners() {
 		io.on("connection", function (socket) {
+			socket.state = {
+				snake : [],
+				direction : 2, //oikealle
+				START_LENGTH : 8,
+			    appleEaten : false,
+			   	snakeAlive : false,
+				score : 0,
+
+				gameboardWidth : 65,
+				gameboardHeight : 65,
+
+				applePosRow :0, 
+				applePosData:0
+			}
+
 			socket.on("chat message", function (msg, sender) {
 				io.emit("chat message", msg, sender);
 			});
@@ -45,6 +74,36 @@ module.exports = (function () {
 		    	});
 		    	//socket.emit("ShowRanking", JSON.stringify("asd"));
 		    });
+
+		    socket.on("directionUp",function(){
+		    	console.log(socket.name + " going up");
+		    });
+		    socket.on("directionDown",function(){
+		    	console.log(socket.name + " going down");
+		    });
+		    socket.on("directionLeft",function(){
+		    	console.log(socket.name + " going left");
+		    });
+		    socket.on("directionRight",function(){
+		    	console.log(socket.name + " going right");
+		    });
+		    socket.on("restart",function(){
+		    	if(!socket.state.snakeAlive){
+			    	socket.state.snakeAlive = true;
+			    	socket.state.snake = wormController.initSnake();
+			    	socket.emit("sendInfoRestarted",socket.state);
+			    	console.log(socket.name + " pressed restart");
+		    	}else{
+		    		console.log("Player tried to restart while alive");
+		    	}
+		    });
+
+		    setInterval(function(){
+		    	socket.emit("sendState",socket.state);
+		    },50);
+		    
+		    socket.emit("initBoard", socket.state);
+		    console.log("User connected and drawinfo sent");
 		});
 	}
 

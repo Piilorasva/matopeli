@@ -9,7 +9,25 @@
 
 	<script type="text/javascript">
 	    var socket = io();
+	    var fps = 60;
+	    var drawInfo={
+	    		snake : [],
+				direction : 2, //oikealle
+				START_LENGTH : 8,
+			    appleEaten : false,
+			   	snakeAlive : false,
+				score : 0,
+
+				gameboardWidth : 65,
+				gameboardHeight : 65,
+
+				applePosRow :0, 
+				applePosData:0
+		}
 	    var receivedData;
+	    var snakeInitialized = false;
+
+
 	    socket.on("connect", function () {
 
 		socket.name = "Anon";
@@ -38,7 +56,67 @@
 			$('#ranking').prepend($('<li>').text(ranking[i].nickname + " " + ranking[i].maxpoints));
 		    }
 		});
+
+
+		socket.on("initBoard",function(drawinfo){
+			var gameboard = '<p id = score style="text-align:center">Score: </p>'
+		    gameboard += '<table id="gameboard">'
+
+			for(i = 0; i<drawinfo.gameboardHeight; i++){
+				gameboard += '<tr>';
+				for (j = 0; j < drawinfo.gameboardWidth; j++){
+					var id = "r"+i+"d"+j;
+					var grid = '<td id="'+id+'">';
+					gameboard += grid;
+				}
+				gameboard += '</tr>';
+			}
+			gameboard += '</table>';
+			gameboard += '<p style="text-align: center"> Ohjaa matoa nuolinäppäimillä. Kuoleman jälkeen paina R syntyäksesi uudelleen </P>';
+			$("#gameboard_div").html(gameboard);
 	    });
+
+	    socket.on("sendInfoRestarted", function(data){
+	    	//////MADON PIIRTÄMINEN/////////////
+	    	console.log("Got the state");
+	    	drawInfo = data;
+	    	drawSnake();
+			//////////////////////////////////////////
+	    });
+
+	    socket.on("sendState", function(state){	
+	    	drawInfo = state;
+	    });
+
+	    function drawSnake(){
+		if(drawInfo.snakeAlive){
+			setTimeout(function(){
+				requestAnimationFrame(drawSnake);
+				console.log("Drawing");
+				$("#score").html("Score: " + drawInfo.score);
+				//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä, paitsi omenan kohdalta. Piirtää myös mustat reunat
+				for(i = 0; i< drawInfo.gameboardHeight;i++){
+					for(j=0;j<drawInfo.gameboardWidth;j++){
+						var rowToClear = i;
+						var dataToClear = j;
+						if(rowToClear == 0 || rowToClear == drawInfo.gameboardHeight -1 || dataToClear == 0 || dataToClear == drawInfo.gameboardWidth -1){
+							$("#r"+rowToClear+"d"+dataToClear).css("background", "black");
+						}
+						else{
+						$("#r"+rowToClear+"d"+dataToClear).css("background", "lightblue");
+						}
+					}
+				}
+
+				var length = drawInfo.snake.length;
+				for(i=0; i < length;i++){
+					var posrow = drawInfo.snake[i][0];
+					var posdata = drawInfo.snake[i][1];
+					$("#r"+posrow+"d"+posdata).css("background", "green");	
+				}
+		},1000/fps);	
+		}
+	} 
 
 	    function sendMessage() {
 		var message = document.getElementById('chatbox').value
@@ -58,18 +136,42 @@
 	    function GetRanking() {
 		socket.emit("getRanking");
 	    }
-	    ;
+	    
 	    //ja 10 sekunnin välein
 	    setInterval(function () {
 		socket.emit("getRanking");
 	    }, 10000);
+
+	    document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+    	socket.emit("directionUp");
+    }
+    else if (e.keyCode == '40') {
+    	socket.emit("directionDown");
+    }
+    else if (e.keyCode == '37') {
+   		socket.emit("directionLeft");
+    }
+    else if (e.keyCode == '39') {
+    	socket.emit("directionRight");
+    }
+    if (e.keyCode == '82') {
+        socket.emit("restart");
+        }
+    }
+});
 
 	</script>
     </head>
 
 
 
-    <body onload="GetRanking()">
+    <body onload="GetRanking()" ondload ="drawSnake()">
         <div id="header">
             <h3 id="htitle">Login</h3>
 	    Player: <input class="tbox" id="nick" type="text" name="player" >
@@ -124,7 +226,7 @@
             </form>
         </div>
 	<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
-	<script src="/public/worm.js"></script>
+	<!--<script src="/public/worm.js"></script> !-->
     </body>
 
 </html>
