@@ -38,6 +38,22 @@ var User = (function () {
 		});
 	}
 
+	function saveScore(score, nick){
+		var id;
+		var idquery = db.query("SELECT id from user WHERE nickname = '"+nick+"'",function(err,rows,fields){
+			if(err){
+				throw err
+			}
+			//console.log(rows[0].id);
+			id = rows[0].id;
+			console.log("with nick " + nick + " found id " + id);
+			var query = db.query("INSERT INTO results (maxpoints,user) VALUES('"+ score+"', '"+id+"')", function(err,result){
+			console.log("Lisättiin pisteet tietokantaan");
+		});
+		});
+		
+	}
+
 	function derp() {
 		console.log("model derp");
 	};
@@ -47,7 +63,8 @@ var User = (function () {
 	return {
 		login: login,
 		derp: derp,
-		getRanking: getRanking
+		getRanking: getRanking,
+		saveScore:saveScore
 	};
 
 })();

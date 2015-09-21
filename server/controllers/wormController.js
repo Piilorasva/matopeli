@@ -1,35 +1,25 @@
 
 var wormController = (function(){
-	var snake = [];
-	var direction = 2; //oikealle
-	var START_LENGTH = 8;
-	var fps = 60;
-	var appleEaten = false;
-	var snakeAlive = false;
-	var score = 0;
-
-	var gameboardWidth = 65;
-	var gameboardHeight = 65;
-
-	var applePosRow; 
-	var applePosData;
+var userController = require("./UserController.js");	
 
 	//FUNKTIO OMENAN SIJOITTAMISEEN KENTÄLLE//
-	function drawApple(){
+	function getApplePosition(state){
+		var returnAppleRow;
+		var returnAppleData;
 		var rowNotOk = true;
 		while(rowNotOk){
-			applePosRow = Math.floor((Math.random() * gameboardHeight));
-			applePosData = Math.floor((Math.random() * gameboardHeight));
-			var length = snake.length;
+			returnAppleRow = Math.floor((Math.random() * state.gameboardHeight));
+			returnAppleData = Math.floor((Math.random() * state.gameboardHeight));
+			var length = state.snake.length;
 			for(i=0; i < length;i++){
-				var row = snake[i][0];
-				var data = snake[i][1];
-				if(applePosRow == row && applePosData == data){
+				var row = state.snake[i][0];
+				var data = state.snake[i][1];
+				if(returnAppleRow == row && returnAppleData == data){
 					console.log("Apple inside snake");
 					rowNotOk = true;
 					break;
 				}
-				if(applePosRow == 0 || applePosRow == gameboardHeight -1 || applePosData == 0 || applePosData == gameboardWidth -1){
+				if(returnAppleRow == 0 || returnAppleRow == state.gameboardHeight -1 || returnAppleData == 0 || returnAppleData == state.gameboardWidth -1){
 					console.log("Apple inside border");
 					rowNotOk = true;
 					break;
@@ -38,16 +28,17 @@ var wormController = (function(){
 				}
 			}
 		}
-		$("#r"+applePosRow+"d"+applePosData).css("background", "red");
+		var appleCoords = [returnAppleRow,returnAppleData];
+		return appleCoords;
 	}
 
-	function initSnake(){
+	function initSnake(state){
 		localSnake = [];
 		console.log("Init snake called");
-		score = 0;
-		for ( i = 0; i < START_LENGTH; i++){
-	   		var row = Math.floor((gameboardWidth/2)); //Asetetaan riviksi keskimmäinen rivi
-	    	var data = Math.floor((gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
+		state.score = 0;
+		for ( i = 0; i < state.START_LENGTH; i++){
+	   		var row = Math.floor((state.gameboardWidth/2)); //Asetetaan riviksi keskimmäinen rivi
+	    	var data = Math.floor((state.gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
 	   	    var locCoord = [row,data] //Tehdään taulukko joka sisältää kaksi arvoa, rivin ja sarakkeen
 	        localSnake.push(locCoord); //lisätään äsken luotu taulu käärmeen kohdaksi
 	    } 
@@ -77,113 +68,93 @@ var wormController = (function(){
 	}
 
 	//initGameBoard(gameboardHeight,gameboardWidth);
+	function stateUpdater(state, nick){
+		var stateToReturn = state;
 
+		if(state.snakeAlive){
+			
 
-	//FUNKTIO MADON PIIRTÄMISTÄ VARTEN//
-	function drawSnake(){
-		if(snakeAlive){
-		setTimeout(function(){
-			requestAnimationFrame(drawSnake);
-			$("#score").html("Score: " + score);
-			//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä, paitsi omenan kohdalta. Piirtää myös mustat reunat
-			for(i = 0; i< gameboardHeight;i++){
-				for(j=0;j<gameboardWidth;j++){
-					var rowToClear = i;
-					var dataToClear = j;
-					if(rowToClear == applePosRow && dataToClear == applePosData){
-						$("#r"+rowToClear+"d"+dataToClear).css("background", "red");
-					} else if(rowToClear == 0 || rowToClear == gameboardHeight -1 || dataToClear == 0 || dataToClear == gameboardWidth -1){
-						$("#r"+rowToClear+"d"+dataToClear).css("background", "black");
-					}
-					else{
-					$("#r"+rowToClear+"d"+dataToClear).css("background", "lightblue");
-					}
-				}
-			}
-
-			var length = snake.length;
-			for(i=0; i < length;i++){
-				var row = snake[i][0];
-				var data = snake[i][1];
-				$("#r"+row+"d"+data).css("background", "green");	
-			}
-
-			if(direction == 1){//Mennään ylös eli vähennetään rowin	
-				 	var headrow = snake[0][0] - 1;
-				 	var headdata = snake[0][1];
+			if(stateToReturn.direction == 1){//Mennään ylös eli vähennetään rowin	
+				 	var headrow = stateToReturn.snake[0][0] - 1;
+				 	var headdata = stateToReturn.snake[0][1];
 				 	var newHead = [headrow,headdata];
-				 	snake.splice(0,0,newHead);
-				 	if(!appleEaten){
-				 	snake.pop();
+				 	stateToReturn.snake.splice(0,0,newHead);
+				 	if(!stateToReturn.appleEaten){
+				 	stateToReturn.snake.pop();
 				 	}
-				 	appleEaten = false;
+				 	stateToReturn.appleEaten = false;
 			}
-			else if(direction == 2){//Mennään oikealle eli lisätään datan arvoa	
-				 	var headrow = snake[0][0];
-				 	var headdata = snake[0][1] + 1;
+			else if(stateToReturn.direction == 2){//Mennään oikealle eli lisätään datan arvoa	
+				 	var headrow = stateToReturn.snake[0][0];
+				 	var headdata = stateToReturn.snake[0][1] + 1;
 				 	var newHead = [headrow,headdata];
-				 	snake.splice(0,0,newHead);
-				 	if(!appleEaten){
-				 	snake.pop();
+				 	stateToReturn.snake.splice(0,0,newHead);
+				 	if(!stateToReturn.appleEaten){
+				 	stateToReturn.snake.pop();
 				 	}
-				 	appleEaten = false;
+				 	stateToReturn.appleEaten = false;
 			}
-			else if(direction == 3){//Mennään alas eli lisätään rowin arvoa	
-				 	var headrow = snake[0][0] + 1;
-				 	var headdata = snake[0][1];
+			else if(stateToReturn.direction == 3){//Mennään alas eli lisätään rowin arvoa	
+				 	var headrow = stateToReturn.snake[0][0] + 1;
+				 	var headdata = stateToReturn.snake[0][1];
 				 	var newHead = [headrow,headdata];
-				 	snake.splice(0,0,newHead);
-				 	if(!appleEaten){
-				 	snake.pop();
+				 	stateToReturn.snake.splice(0,0,newHead);
+				 	if(!stateToReturn.appleEaten){
+				 	stateToReturn.snake.pop();
 				 	}
-				 	appleEaten = false;
+				 	stateToReturn.appleEaten = false;
 			}
-			else if(direction == 4){//Mennään vasemmalle eli vähennetään datan arvoa	
-				 	var headrow = snake[0][0];
-				 	var headdata = snake[0][1] - 1;
+			else if(stateToReturn.direction == 4){//Mennään vasemmalle eli vähennetään datan arvoa	
+				 	var headrow = stateToReturn.snake[0][0];
+				 	var headdata = stateToReturn.snake[0][1] - 1;
 				 	var newHead = [headrow,headdata];
-				 	snake.splice(0,0,newHead);
-				 	if(!appleEaten){
-				 	snake.pop();
+				 	stateToReturn.snake.splice(0,0,newHead);
+				 	if(!stateToReturn.appleEaten){
+				 	stateToReturn.snake.pop();
 				 	}
-				 	appleEaten = false;
+				 	stateToReturn.appleEaten = false;
 			}
 
+			var length = stateToReturn.snake.length;
 			//törmäyksen tarkistaminen omaan häntään
 			for(i=1; i < length;i++){
-				var headrow = snake[0][0];
-				var headdata = snake[0][1];
-				var row = snake[i][0];
-				var data = snake[i][1];
+				var headrow = stateToReturn.snake[0][0];
+				var headdata = stateToReturn.snake[0][1];
+				var row = stateToReturn.snake[i][0];
+				var data = stateToReturn.snake[i][1];
 				if(row == headrow && data == headdata){
-					snakeAlive = false;
-					gameOverScreen();
+					stateToReturn.snakeAlive = false;
+					//lähetetään tulos tietokantaan
+					userController.logScore(stateToReturn.score,nick);
 				}
 			}
 			//Törmäyksen tarkistaminen reunaan
-			if(snakeAlive){
-				if(snake[0][0] == 0 || snake[0][0] == gameboardHeight - 1|| snake[0][1] == 0 || snake[0][1] == gameboardWidth - 1){
-					snakeAlive = false;
-					gameOverScreen();
+			if(stateToReturn.snakeAlive){
+				if(stateToReturn.snake[0][0] == 0 || stateToReturn.snake[0][0] == stateToReturn.gameboardHeight - 1|| stateToReturn.snake[0][1] == 0 || stateToReturn.snake[0][1] == stateToReturn.gameboardWidth - 1){
+					stateToReturn.snakeAlive = false;
+					//lähetetään tulos tietokantaan
+					userController.logScore(stateToReturn.score,nick);
 				}
 			}
 			//Omenan syönnin tarkistus
-			if(snakeAlive){
-				if(snake[0][0] == applePosRow && snake[0][1] == applePosData){
-					appleEaten = true;
-					score += 1;
-					drawApple();
+			if(stateToReturn.snakeAlive){
+				if(stateToReturn.snake[0][0] == stateToReturn.applePosRow && stateToReturn.snake[0][1] == stateToReturn.applePosData){
+					stateToReturn.appleEaten = true;
+					stateToReturn.score += 1;
+					var newApplePos = getApplePosition(state);
+					stateToReturn.applePosRow = newApplePos[0];
+					stateToReturn.applePosData = newApplePos[1];
+					//drawApple();
 				}
 			}
-
-
-		},1000/fps);	
 		}
+		return stateToReturn;
+	}
+
+	//FUNKTIO MADON PIIRTÄMISTÄ VARTEN//
+	function drawSnake(){
 	} 
 
-	function respawn(){
-
-	}
 
 	function gameOverScreen(){
 		snake = [];
@@ -200,10 +171,11 @@ var wormController = (function(){
 
 	return{
 		gameOverScreen: gameOverScreen,
-		drawApple:drawApple,
+		getApplePosition:getApplePosition,
 		drawSnake:drawSnake,
 		initSnake:initSnake,
-		initGameBoard:initGameBoard
+		initGameBoard:initGameBoard,
+		stateUpdater:stateUpdater
 	}
 
 })();

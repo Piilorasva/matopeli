@@ -11,6 +11,12 @@ var userController = (function () {
        userModel.login(nick, kayttaja);
    }
 
+   function logScore(score, player){
+      var scoreToLog = score;
+      var playerNick = player;
+      userModel.saveScore(scoreToLog,playerNick);
+   }
+
    function derp() {
        console.log("controller derp");
    }
@@ -23,7 +29,8 @@ var userController = (function () {
    /* määritellään funktiot joita voi käyttää muissa filuissa  => routes */
    return {
        login: login,
-       derp: derp
+       derp: derp,
+       logScore:logScore
    };
 })();
 

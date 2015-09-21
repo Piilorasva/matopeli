@@ -23,7 +23,7 @@ var wormController = require("./controllers/wormController.js");
 module.exports = (function () {
 	var io = false;
 	var clientNames = [];
-
+	var matches = [];
 	/* laitetaan socketti kuuntelemaan http servua, jonka jälkeen alustetaan loput */
 	function listen(http) {
 		io = socketio.listen(http);
@@ -43,8 +43,8 @@ module.exports = (function () {
 				gameboardWidth : 65,
 				gameboardHeight : 65,
 
-				applePosRow :0, 
-				applePosData:0
+				applePosRow :5, 
+				applePosData:5
 			}
 
 			socket.on("chat message", function (msg, sender) {
@@ -64,6 +64,7 @@ module.exports = (function () {
 		    	socket.name = nick;
 		    	console.log("Added user " + nick + " to list");
 		    	clientNames.push(nick);
+		    	matches.push(socket);
 		    	PubSub.publish("PLAYERLIST", playerList);
 		    });
 
@@ -76,21 +77,29 @@ module.exports = (function () {
 		    });
 
 		    socket.on("directionUp",function(){
+		    	socket.state.direction = 1;
 		    	console.log(socket.name + " going up");
 		    });
 		    socket.on("directionDown",function(){
+		    	socket.state.direction = 3;
 		    	console.log(socket.name + " going down");
 		    });
 		    socket.on("directionLeft",function(){
+		    	socket.state.direction = 4;
 		    	console.log(socket.name + " going left");
 		    });
 		    socket.on("directionRight",function(){
+		    	socket.state.direction = 2;
 		    	console.log(socket.name + " going right");
 		    });
 		    socket.on("restart",function(){
+		    	console.log("R pressed");
 		    	if(!socket.state.snakeAlive){
 			    	socket.state.snakeAlive = true;
-			    	socket.state.snake = wormController.initSnake();
+			    	socket.state.snake = wormController.initSnake(socket.state);
+			    	var applePos = wormController.getApplePosition(socket.state);
+			    	socket.state.applePosRow = applePos[0];
+			    	socket.state.applePosData = applePos[1];
 			    	socket.emit("sendInfoRestarted",socket.state);
 			    	console.log(socket.name + " pressed restart");
 		    	}else{
@@ -99,7 +108,11 @@ module.exports = (function () {
 		    });
 
 		    setInterval(function(){
+		    	if(socket.state.snakeAlive){
+		    	socket.state = wormController.stateUpdater(socket.state, socket.name);
 		    	socket.emit("sendState",socket.state);
+		    	console.log("Sending state");
+		    	}
 		    },50);
 		    
 		    socket.emit("initBoard", socket.state);

@@ -80,7 +80,7 @@
 	    	//////MADON PIIRTÄMINEN/////////////
 	    	console.log("Got the state");
 	    	drawInfo = data;
-	    	drawSnake();
+	    	drawSnakeAndApple();
 			//////////////////////////////////////////
 	    });
 
@@ -88,10 +88,10 @@
 	    	drawInfo = state;
 	    });
 
-	    function drawSnake(){
+	    function drawSnakeAndApple(){
 		if(drawInfo.snakeAlive){
 			setTimeout(function(){
-				requestAnimationFrame(drawSnake);
+				requestAnimationFrame(drawSnakeAndApple);
 				console.log("Drawing");
 				$("#score").html("Score: " + drawInfo.score);
 				//tehdään loop joka puhdistaa pöydän aina piirtämisen välissä, paitsi omenan kohdalta. Piirtää myös mustat reunat
@@ -107,6 +107,8 @@
 						}
 					}
 				}
+				//OMENAN PIIRTÄMINEN//
+				$("#r"+drawInfo.applePosRow+"d"+drawInfo.applePosData).css("background", "red");
 
 				var length = drawInfo.snake.length;
 				for(i=0; i < length;i++){
@@ -115,6 +117,16 @@
 					$("#r"+posrow+"d"+posdata).css("background", "green");	
 				}
 		},1000/fps);	
+		} else{
+			for(i = 0; i< drawInfo.gameboardHeight;i++){
+			for(j=0;j<drawInfo.gameboardWidth;j++){
+				var row = i;
+				var data = j;
+				
+				$("#r"+row+"d"+data).css("background", "black");
+					
+			}
+		}
 		}
 	} 
 
@@ -171,7 +183,7 @@ function checkKey(e) {
 
 
 
-    <body onload="GetRanking()" ondload ="drawSnake()">
+    <body onload="GetRanking()">
         <div id="header">
             <h3 id="htitle">Login</h3>
 	    Player: <input class="tbox" id="nick" type="text" name="player" >
