@@ -32,12 +32,27 @@ var userController = require("./UserController.js");
 		return appleCoords;
 	}
 
-	function initSnake(state){
+	function initSnake1(state){
 		localSnake = [];
 		console.log("Init snake called");
 		state.score = 0;
 		for ( i = 0; i < state.START_LENGTH; i++){
 	   		var row = Math.floor((state.gameboardWidth/2)); //Asetetaan riviksi keskimmäinen rivi
+	    	var data = Math.floor((state.gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
+	   	    var locCoord = [row,data] //Tehdään taulukko joka sisältää kaksi arvoa, rivin ja sarakkeen
+	        localSnake.push(locCoord); //lisätään äsken luotu taulu käärmeen kohdaksi
+	    } 
+	    return localSnake;
+
+	    //drawSnake();
+	}
+
+	function initSnake2(state){
+		localSnake = [];
+		console.log("Init snake called");
+		state.score = 0;
+		for ( i = 0; i < state.START_LENGTH; i++){
+	   		var row = Math.floor((state.gameboardWidth/2 +10)); //Asetetaan riviksi keskimmäinen rivi
 	    	var data = Math.floor((state.gameboardHeight/2) - i); //asetetaan dataksi keskimmäinen td - kierroksen numero
 	   	    var locCoord = [row,data] //Tehdään taulukko joka sisältää kaksi arvoa, rivin ja sarakkeen
 	        localSnake.push(locCoord); //lisätään äsken luotu taulu käärmeen kohdaksi
@@ -173,7 +188,8 @@ var userController = require("./UserController.js");
 		gameOverScreen: gameOverScreen,
 		getApplePosition:getApplePosition,
 		drawSnake:drawSnake,
-		initSnake:initSnake,
+		initSnake1:initSnake1,
+		initSnake2:initSnake2,
 		initGameBoard:initGameBoard,
 		stateUpdater:stateUpdater
 	}

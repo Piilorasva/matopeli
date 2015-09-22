@@ -4,20 +4,6 @@ var userModel	= require("./models/UserModel.js");
 var PubSub 		= require("pubsub-js");
 var wormController = require("./controllers/wormController.js");
 
-/*var drawInfo = {
-	snake : [],
-	direction : 2, //oikealle
-	START_LENGTH : 8,
-    appleEaten : false,
-   	snakeAlive : false,
-	score : 0,
-
-	gameboardWidth : 65,
-	gameboardHeight : 65,
-
-	applePosRow :0, 
-	applePosData:0
-} */
 
 
 module.exports = (function () {
@@ -33,7 +19,7 @@ module.exports = (function () {
 	function socketListeners() {
 		io.on("connection", function (socket) {
 			socket.state = {
-				snake : [],
+				snake : [(1,1)],
 				direction : 2, //oikealle
 				START_LENGTH : 8,
 			    appleEaten : false,
@@ -70,10 +56,9 @@ module.exports = (function () {
 
 		    socket.on("getRanking", function() {
 		    	userModel.getRanking(function(result) {
-		    		console.log(result);
+		    		//console.log(result);
 		    		socket.emit("ShowRanking", JSON.stringify(result));
 		    	});
-		    	//socket.emit("ShowRanking", JSON.stringify("asd"));
 		    });
 
 		    socket.on("directionUp",function(){
@@ -94,26 +79,51 @@ module.exports = (function () {
 		    });
 		    socket.on("restart",function(){
 		    	console.log("R pressed");
-		    	if(!socket.state.snakeAlive){
-			    	socket.state.snakeAlive = true;
-			    	socket.state.snake = wormController.initSnake(socket.state);
-			    	var applePos = wormController.getApplePosition(socket.state);
-			    	socket.state.applePosRow = applePos[0];
-			    	socket.state.applePosData = applePos[1];
-			    	socket.emit("sendInfoRestarted",socket.state);
-			    	console.log(socket.name + " pressed restart");
-		    	}else{
-		    		console.log("Player tried to restart while alive");
-		    	}
+		    	if(matches.length > 1){
+		    		if(socket === matches[0]){socket.state.snake = wormController.initSnake1(matches[0].state);}
+		    		if(socket === matches[1]){socket.state.snake = wormController.initSnake2(matches[1].state);}
+		    		//matches[0].state.snake = wormController.initSnake1(matches[0].state);
+		    		//matches[1].state.snake = wormController.initSnake2(matches[1].state);
+		    		socket.state.snakeAlive = true;
+			    	//if(!matches[0].state.snakeAlive && !matches[1].state.snakeAlive){
+				    	//socket.state.snake = wormController.initSnake(socket.state);
+				    	if(matches[0].state.snakeAlive && matches[1].state.snakeAlive){
+
+				    	var applePos = wormController.getApplePosition(socket.state);
+				    	socket.state.applePosRow = applePos[0];
+				    	socket.state.applePosData = applePos[1];
+				    	matches[0].emit("sendInfoRestarted",{own:matches[0].state,enemy:matches[1].state});
+				    	matches[1].emit("sendInfoRestarted",{own:matches[1].state,enemy:matches[0].state});
+				    	}
+				    	console.log(socket.name + " pressed restart");
+			    	}else{
+			    		console.log("Player tried to restart while alive");
+			    	}
+		    	//}
 		    });
 
 		    setInterval(function(){
-		    	if(socket.state.snakeAlive){
-		    	socket.state = wormController.stateUpdater(socket.state, socket.name);
-		    	socket.emit("sendState",socket.state);
-		    	console.log("Sending state");
+		    	if(matches.length > 1){
+			    	if(matches[0].state.snakeAlive&&matches[1].state.snakeAlive &&matches[0].state.snake.length >1 && matches[1].state.snake.length > 1){
+			    	matches[0].state = wormController.stateUpdater(matches[0].state, matches[0].name);
+			    	matches[1].state = wormController.stateUpdater(matches[1].state, matches[1].name);
+			    	matches[0].emit("sendState",{own:matches[0].state,enemy:matches[1].state});
+			    	matches[1].emit("sendState",{own:matches[1].state,enemy:matches[0].state});
+			    	console.log("Sending state");
+			    	}
 		    	}
-		    },50);
+		    },750);
+
+		    setInterval(function(){
+		    	if(matches.length > 1){
+		    		console.log(matches[0].name);
+		    		console.log(matches[0].state.snakeAlive);
+		    		console.log(matches[0].state.snake.length);
+		    		console.log(matches[1].name);
+		    		console.log(matches[1].state.snakeAlive);
+		    		console.log(matches[1].state.snake.length);
+		    	}
+		    },3000);
 		    
 		    socket.emit("initBoard", socket.state);
 		    console.log("User connected and drawinfo sent");
