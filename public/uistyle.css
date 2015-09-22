@@ -60,12 +60,18 @@ td{
 }
 
 #rightmenu {
-	height: 50px;
+	height: 500px;
 	width: 250px;
 	border: 1px solid lightgrey;
 	padding-left: 10px;
 	float: right;
 	position: relative;
+	
+}
+
+#rankingList{
+	height: 500px;
+	overflow: auto;
 }
 
 /*Player ranking title*/

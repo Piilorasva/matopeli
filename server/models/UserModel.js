@@ -30,7 +30,7 @@ var User = (function () {
 	}
 
 	function getRanking(callback) {
-		var q = 'SELECT user.nickname, results.maxpoints FROM user,results WHERE user.id=results.user ORDER BY results.maxpoints ASC';
+		var q = 'SELECT user.nickname, results.maxpoints FROM user,results WHERE user.id=results.user ORDER BY results.maxpoints DESC LIMIT 30';
 
 		db.query(q, function(err, rows, fields) {
 			callback(rows);
