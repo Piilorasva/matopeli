@@ -54,7 +54,7 @@
 		    $('#ranking').empty();
 		    var ranking = JSON.parse(data);
 		    for (i = 0; i < ranking.length; i++) {
-			$('#ranking').prepend($('<li>').text(ranking[i].nickname + " " + ranking[i].maxpoints));
+			$('#ranking').append($('<li>').text(ranking[i].nickname + " " + ranking[i].maxpoints));
 		    }
 		});
 
@@ -229,9 +229,11 @@ function checkKey(e) {
 
         <div id="rightmenu">
             <h4 id="rtitle">TOP-30</h4>
-            <ul id="ranking">
+            <div id="rankingList">
+            	<ol id="ranking">
 
-            </ul>
+            	</ol>
+            </div>
         </div>
         <div id="gameboard_div">
 
