@@ -90,8 +90,10 @@ module.exports = (function () {
 				    	if(matches[0].state.snakeAlive && matches[1].state.snakeAlive){
 
 				    	var applePos = wormController.getApplePosition(socket.state);
-				    	socket.state.applePosRow = applePos[0];
-				    	socket.state.applePosData = applePos[1];
+				    	matches[0].state.applePosRow = applePos[0];
+				    	matches[0].state.applePosData = applePos[1];
+				    	matches[1].state.applePosRow = applePos[0];
+				    	matches[1].state.applePosData = applePos[1];
 				    	matches[0].emit("sendInfoRestarted",{own:matches[0].state,enemy:matches[1].state});
 				    	matches[1].emit("sendInfoRestarted",{own:matches[1].state,enemy:matches[0].state});
 				    	}
@@ -107,6 +109,13 @@ module.exports = (function () {
 			    	if(matches[0].state.snakeAlive&&matches[1].state.snakeAlive &&matches[0].state.snake.length >1 && matches[1].state.snake.length > 1){
 			    	matches[0].state = wormController.stateUpdater(matches[0].state, matches[0].name);
 			    	matches[1].state = wormController.stateUpdater(matches[1].state, matches[1].name);
+			    	if(matches[0].state.appleEaten){
+			    		matches[1].state.applePosData = matches[0].state.applePosData;
+			    		matches[1].state.applePosRow = matches[0].state.applePosRow;
+			    	}else if(matches[1].state.appleEaten){
+			    		matches[0].state.applePosData = matches[1].state.applePosData;
+			    		matches[0].state.applePosRow = matches[1].state.applePosRow;
+			    	}
 			    	matches[0].emit("sendState",{own:matches[0].state,enemy:matches[1].state});
 			    	matches[1].emit("sendState",{own:matches[1].state,enemy:matches[0].state});
 			    	console.log("Sending state");
